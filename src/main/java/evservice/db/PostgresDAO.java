@@ -3,10 +3,7 @@ package evservice.db;
 import evservice.core.DAO;
 import evservice.core.User;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class PostgresDAO implements DAO {
 
@@ -35,7 +32,15 @@ public class PostgresDAO implements DAO {
 
     @Override
     public double getBalance(User user) throws SQLException {
-        return 0;
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT sum(\"sum\") as balance FROM public.transactions WHERE user_id = ?"
+        );
+        preparedStatement.setInt(1, user.getId());
+        ResultSet results = preparedStatement.executeQuery();
+        double balance = results.getDouble("balance");
+        preparedStatement.close();
+
+        return balance;
     }
 
     @Override
