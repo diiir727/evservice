@@ -2,26 +2,27 @@ package evservice.workers;
 
 import evservice.core.DAO;
 import evservice.core.User;
+import org.json.JSONObject;
 
 import java.sql.SQLException;
 
 public class CreateUserWorker {
 
-    private static final int USER_REGISTER = 0;
-    private static final int USER_EXIST = 1;
-    private static final int SOME_ERROR = 2;
+    static final int USER_REGISTER = 0;
+    static final int USER_EXIST = 1;
+    static final int SOME_ERROR = 2;
     private DAO dao;
 
     public CreateUserWorker(DAO dao) {
         this.dao = dao;
     }
 
-
-    public void getResult(String login, String pass){
+    public JSONObject getResult(String login, String pass){
         User user = new User(0, login, pass);
-        int res = registerUser(user);
-
-        System.out.println(res);
+        int type = registerUser(user);
+        JSONObject jsonResult = new JSONObject();
+        jsonResult.put("result", type);
+        return jsonResult;
     }
 
     private int registerUser(User user){
