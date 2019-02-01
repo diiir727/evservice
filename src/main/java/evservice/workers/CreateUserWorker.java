@@ -17,8 +17,8 @@ public class CreateUserWorker {
         this.dao = dao;
     }
 
-    public JSONObject getResult(String login, String pass){
-        User user = new User(0, login, pass);
+    public JSONObject getResult(JSONObject request){
+        User user = getUserFromRequest(request);
         int type = registerUser(user);
         JSONObject jsonResult = new JSONObject();
         jsonResult.put("result", type);
@@ -31,5 +31,15 @@ public class CreateUserWorker {
         } catch (SQLException e) {
             return SOME_ERROR;
         }
+    }
+
+    private User getUserFromRequest(JSONObject request) {
+        String login = request.optString("login", "");
+        String password = request.optString("password", "");
+
+        if(login.isEmpty() || password.isEmpty())
+            throw new IllegalArgumentException();
+
+        return new User(0, login, password);
     }
 }

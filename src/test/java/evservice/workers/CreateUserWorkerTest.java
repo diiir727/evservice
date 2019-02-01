@@ -33,7 +33,10 @@ public class CreateUserWorkerTest extends TestCase {
 
     private void checkWorkerResult(int actualRes){
         CreateUserWorker worker = new CreateUserWorker(dao);
-        JSONObject res = worker.getResult("test", "test");
+        JSONObject request = new JSONObject();
+        request.put("login", "test");
+        request.put("password", "test");
+        JSONObject res = worker.getResult(request);
         assertEquals(res.getInt("result"), actualRes);
     }
 }
