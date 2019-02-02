@@ -1,9 +1,10 @@
 package evservice.workers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
-import org.json.JSONObject;
 
 public class GetBalanceWorker implements Worker{
 
@@ -19,11 +20,12 @@ public class GetBalanceWorker implements Worker{
     }
 
     @Override
-    public String getResult(JsonNode request){
+    public JsonNode getResult(JsonNode request){
+        ObjectMapper mapper= new ObjectMapper();
         try {
             User userFromRequest = getUserFromRequest(request);
             User dbUser = dao.getUserByLogin(userFromRequest);
-            JSONObject resObj = new JSONObject();
+            ObjectNode resObj = mapper.createObjectNode();
 
             if(dbUser == null){
                 resObj.put("result", USER_NOT_EXIST);
@@ -32,17 +34,17 @@ public class GetBalanceWorker implements Worker{
             } else {
                 resObj.put("result", SUCCESS_RESULT);
                 double balance = dao.getBalance(dbUser);
-                JSONObject extras = new JSONObject();
+                ObjectNode extras = mapper.createObjectNode();
                 extras.put("balance", balance);
-                resObj.put("extras", extras);
+                resObj.set("extras", extras);
             }
 
-            return resObj.toString();
+            return resObj;
         } catch (Exception e) {
             e.printStackTrace();
-            JSONObject failObj = new JSONObject();
+            ObjectNode failObj = mapper.createObjectNode();
             failObj.put("result", SOME_ERROR);
-            return failObj.toString();
+            return failObj;
         }
     }
 

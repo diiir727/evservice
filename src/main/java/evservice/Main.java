@@ -10,7 +10,7 @@ public class Main {
         try {
             DAO dao = new PostgresDAO();
             CreateUserWorker worker = new CreateUserWorker(dao);
-            worker.getResult("sasha1", "den");
+//            worker.getResult("sasha1", "den");
         } catch (Exception e) {
             e.printStackTrace();
         }

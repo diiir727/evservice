@@ -2,11 +2,9 @@ package evservice.workers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
-import org.json.JSONObject;
-
-import java.sql.SQLException;
 
 public class CreateUserWorker  implements Worker{
 
@@ -20,20 +18,17 @@ public class CreateUserWorker  implements Worker{
     }
 
     @Override
-    public String getResult(JsonNode request){
-        User user = getUserFromRequest(request);
-        int type = registerUser(user);
-        JSONObject jsonResult = new JSONObject();
-        jsonResult.put("result", type);
-        return jsonResult.toString();
-    }
-
-    private int registerUser(User user){
+    public JsonNode getResult(JsonNode request){
+        ObjectMapper mapper= new ObjectMapper();
+        ObjectNode jsonResult = mapper.createObjectNode();
         try {
-            return dao.registerUser(user) ? USER_REGISTER : USER_EXIST;
-        } catch (SQLException e) {
-            return SOME_ERROR;
+            User user = getUserFromRequest(request);
+            int type = dao.registerUser(user) ? USER_REGISTER : USER_EXIST;
+            jsonResult.put("result", type);
+        } catch (Exception e) {
+            jsonResult.put("result", SOME_ERROR);
         }
+        return jsonResult;
     }
 
     private User getUserFromRequest(JsonNode request) {
