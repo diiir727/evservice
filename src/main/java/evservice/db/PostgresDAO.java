@@ -32,19 +32,35 @@ public class PostgresDAO implements DAO {
 
     @Override
     public double getBalance(User user) throws SQLException {
+        double balance = 0;
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "SELECT sum(\"sum\") as balance FROM public.transactions WHERE user_id = ?"
         );
         preparedStatement.setInt(1, user.getId());
         ResultSet results = preparedStatement.executeQuery();
-        double balance = results.getDouble("balance");
+        if(results.next())
+            balance = results.getDouble("balance");
         preparedStatement.close();
-
         return balance;
     }
 
     @Override
     public User getUserByLogin(User user) throws SQLException {
-        return null;
+
+        User result = null;
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT * FROM public.users WHERE login = ?"
+        );
+        preparedStatement.setString(1, user.getLogin());
+        ResultSet results = preparedStatement.executeQuery();
+        while (results.next()) {
+            int id = results.getInt("id");
+            String pass = results.getString("pass");
+            String login = results.getString("login");
+            result = new User(id, login, pass);
+        }
+        preparedStatement.close();
+
+        return result;
     }
 }

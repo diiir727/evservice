@@ -44,5 +44,10 @@
             <artifactId>json</artifactId>
             <version>20180813</version>
         </dependency>
+        <dependency>
+            <groupId>io.ratpack</groupId>
+            <artifactId>ratpack-core</artifactId>
+            <version>1.6.0</version>
+        </dependency>
     </dependencies>
 </project>

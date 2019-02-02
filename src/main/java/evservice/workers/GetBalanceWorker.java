@@ -1,10 +1,11 @@
 package evservice.workers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import evservice.core.DAO;
 import evservice.core.User;
 import org.json.JSONObject;
 
-public class GetBalanceWorker {
+public class GetBalanceWorker implements Worker{
 
     static final int SUCCESS_RESULT = 0;
     static final int SOME_ERROR = 2;
@@ -17,7 +18,8 @@ public class GetBalanceWorker {
         this.dao = dao;
     }
 
-    public JSONObject getResult(JSONObject request){
+    @Override
+    public String getResult(JsonNode request){
         try {
             User userFromRequest = getUserFromRequest(request);
             User dbUser = dao.getUserByLogin(userFromRequest);
@@ -35,17 +37,18 @@ public class GetBalanceWorker {
                 resObj.put("extras", extras);
             }
 
-            return resObj;
+            return resObj.toString();
         } catch (Exception e) {
+            e.printStackTrace();
             JSONObject failObj = new JSONObject();
             failObj.put("result", SOME_ERROR);
-            return failObj;
+            return failObj.toString();
         }
     }
 
-    private User getUserFromRequest(JSONObject request) {
-        String login = request.optString("login", "");
-        String password = request.optString("password", "");
+    private User getUserFromRequest(JsonNode request) {
+        String login = request.get("login").asText("");
+        String password = request.get("password").asText("");
 
         if(login.isEmpty() || password.isEmpty())
             throw new IllegalArgumentException();
