@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
 import junit.framework.TestCase;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.SQLException;
 
@@ -15,7 +16,7 @@ public class GetBalanceWorkerTest extends TestCase {
     private DAO dao = mock(DAO.class);
     private ObjectMapper mapper = new ObjectMapper();
     private GetBalanceWorker worker = new GetBalanceWorker(dao);
-    private User testUser = new User(0, "test", "test");
+    private User testUser = new User(0, "test", DigestUtils.md5Hex("test"));
 
     public void testSuccessCase() throws SQLException {
         ObjectNode obj = createRequestJson("test");

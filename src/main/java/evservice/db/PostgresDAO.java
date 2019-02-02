@@ -16,15 +16,15 @@ public class PostgresDAO implements DAO {
     }
 
     public boolean registerUser(User user) throws SQLException{
-         PreparedStatement preparedStatement = connection.prepareStatement(
-                 "INSERT INTO public.users( login, pass) VALUES (?, ?) ON CONFLICT DO NOTHING;"
-         );
-         preparedStatement.setString(1, user.getLogin());
-         preparedStatement.setString(2, user.getPassword());
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO public.users( login, pass) VALUES (?, ?) ON CONFLICT DO NOTHING;"
+        );
+        preparedStatement.setString(1, user.getLogin());
+        preparedStatement.setString(2, user.getPassword());
 
-         int res = preparedStatement.executeUpdate();
-         preparedStatement.close();
-         return res == 1;
+        int res = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        return res == 1;
     }
 
     @Override

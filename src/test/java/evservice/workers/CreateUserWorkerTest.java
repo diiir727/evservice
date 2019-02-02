@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
 import junit.framework.TestCase;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.SQLException;
 
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.when;
 public class CreateUserWorkerTest extends TestCase {
 
     private DAO dao = mock(DAO.class);
-    private User user = new User(0, "test", "test");
+    private User user = new User(0, "test", DigestUtils.md5Hex("test"));
 
 
     public void testSuccessResponse() throws SQLException {
