@@ -9,12 +9,9 @@ public class PostgresDAO implements DAO {
 
     private Connection connection;
 
-    public PostgresDAO() throws Exception {
+    public PostgresDAO(String jdbcUrl, String login, String password) throws Exception {
         Class.forName("org.postgresql.Driver");
-        String host = "jdbc:postgresql://localhost:5432/den";
-        String login = "den";
-        String password = "123";
-        connection = DriverManager.getConnection(host, login, password);
+        connection = DriverManager.getConnection(jdbcUrl, login, password);
         connection.setAutoCommit(true);
     }
 
