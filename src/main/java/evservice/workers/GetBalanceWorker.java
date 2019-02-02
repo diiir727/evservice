@@ -6,7 +6,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
 
-public class GetBalanceWorker implements Worker{
+/**
+ * Обработчик для получения баланса
+ */
+public class GetBalanceWorker extends Worker{
 
     static final int SUCCESS_RESULT = 0;
     static final int SOME_ERROR = 2;
@@ -22,10 +25,10 @@ public class GetBalanceWorker implements Worker{
     @Override
     public JsonNode getResult(JsonNode request){
         ObjectMapper mapper= new ObjectMapper();
+        ObjectNode resObj = mapper.createObjectNode();
         try {
             User userFromRequest = getUserFromRequest(request);
             User dbUser = dao.getUserByLogin(userFromRequest);
-            ObjectNode resObj = mapper.createObjectNode();
 
             if(dbUser == null){
                 resObj.put("result", USER_NOT_EXIST);
@@ -38,24 +41,12 @@ public class GetBalanceWorker implements Worker{
                 extras.put("balance", balance);
                 resObj.set("extras", extras);
             }
-
-            return resObj;
         } catch (Exception e) {
-            e.printStackTrace();
-            ObjectNode failObj = mapper.createObjectNode();
-            failObj.put("result", SOME_ERROR);
-            return failObj;
+            resObj.put("result", SOME_ERROR);
         }
+        return resObj;
     }
 
-    private User getUserFromRequest(JsonNode request) {
-        String login = request.get("login").asText("");
-        String password = request.get("password").asText("");
 
-        if(login.isEmpty() || password.isEmpty())
-            throw new IllegalArgumentException();
-
-        return new User(0, login, password);
-    }
 
 }
