@@ -5,7 +5,7 @@
 ### Запуск
 
  mvn package   
- java -jar target/ev-service-1.0.jar <jdbcUrl> <login> <pass>
+ java -jar target/ev-service-1.0.jar \<jdbcUrl> \<login> \<pass>
 
 ### Параметры
 * jdbcUrl - url формата jdbc:postgresql://localhost:5432/dbname
