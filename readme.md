@@ -4,7 +4,7 @@
 
 ### Запуск
 
- mvn package
+ mvn package   
  java -jar target/ev-service-1.0.jar <jdbcUrl> <login> <pass>
 
 ### Параметры
