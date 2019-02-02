@@ -1,9 +1,11 @@
 package evservice.workers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
 import junit.framework.TestCase;
-import org.json.JSONObject;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.SQLException;
 
@@ -12,59 +14,47 @@ import static org.mockito.Mockito.when;
 
 public class GetBalanceWorkerTest extends TestCase {
     private DAO dao = mock(DAO.class);
+    private ObjectMapper mapper = new ObjectMapper();
+    private GetBalanceWorker worker = new GetBalanceWorker(dao);
+    private User testUser = new User(0, "test", DigestUtils.md5Hex("test"));
 
     public void testSuccessCase() throws SQLException {
-        GetBalanceWorker worker = new GetBalanceWorker(dao);
-        JSONObject obj = new JSONObject();
-        User user = new User(0, "test", "test");
-        when(dao.getUserByLogin(user)).thenReturn(user);
-        when(dao.getBalance(user)).thenReturn(12.5);
-        obj.put("login", "test");
-        obj.put("password", "test");
-
-        assertEquals(worker.getResult(obj).getJSONObject("extras").getDouble("balance"), 12.5);
+        ObjectNode obj = createRequestJson("test");
+        when(dao.getUserByLogin(testUser)).thenReturn(testUser);
+        when(dao.getBalance(testUser)).thenReturn(12.5);
+        assertEquals(worker.getResult(obj).get("extras").get("balance").asDouble(), 12.5);
     }
 
     public void testUserNotExist() throws SQLException {
-        GetBalanceWorker worker = new GetBalanceWorker(dao);
-        JSONObject obj = new JSONObject();
-        User user = new User(0, "test", "test");
-        when(dao.getUserByLogin(user)).thenReturn(null);
-        obj.put("login", "test");
-        obj.put("password", "test");
-
-        assertEquals(worker.getResult(obj).getInt("result"), GetBalanceWorker.USER_NOT_EXIST);
+        ObjectNode obj = createRequestJson("test");
+        when(dao.getUserByLogin(testUser)).thenReturn(null);
+        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.USER_NOT_EXIST);
     }
 
     public void testNotValidArgs() throws SQLException {
         GetBalanceWorker worker = new GetBalanceWorker(dao);
-        JSONObject obj = new JSONObject();
-        obj.put("login", "");
-        obj.put("password", "test");
-
-        assertEquals(worker.getResult(obj).getInt("result"), GetBalanceWorker.SOME_ERROR);
+        ObjectNode obj = createRequestJson("");
+        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.SOME_ERROR);
     }
 
     public void testSomeException() throws SQLException {
-        GetBalanceWorker worker = new GetBalanceWorker(dao);
-        JSONObject obj = new JSONObject();
-        User user = new User(0, "test", "test");
-        when(dao.getUserByLogin(user)).thenThrow(SQLException.class);
-        obj.put("login", "test");
-        obj.put("password", "test");
-
-        assertEquals(worker.getResult(obj).getInt("result"), GetBalanceWorker.SOME_ERROR);
+        ObjectNode obj = createRequestJson("test");
+        when(dao.getUserByLogin(testUser)).thenThrow(SQLException.class);
+        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.SOME_ERROR);
     }
 
     public void testPasswordNotValid() throws SQLException {
-        GetBalanceWorker worker = new GetBalanceWorker(dao);
-        JSONObject obj = new JSONObject();
+        ObjectNode obj = createRequestJson("test");
         User user = new User(0, "test", "other_pass");
         when(dao.getUserByLogin(user)).thenReturn(user);
-        obj.put("login", "test");
-        obj.put("password", "test");
+        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.PASSWORD_FAIL);
+    }
 
-        assertEquals(worker.getResult(obj).getInt("result"), GetBalanceWorker.PASSWORD_FAIL);
+    private ObjectNode createRequestJson(String login){
+        ObjectNode obj = mapper.createObjectNode();
+        obj.put("login", login);
+        obj.put("password", "test");
+        return obj;
     }
 
 }

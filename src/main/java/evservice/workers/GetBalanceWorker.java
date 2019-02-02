@@ -1,10 +1,15 @@
 package evservice.workers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
-import org.json.JSONObject;
 
-public class GetBalanceWorker {
+/**
+ * Обработчик для получения баланса
+ */
+public class GetBalanceWorker extends Worker{
 
     static final int SUCCESS_RESULT = 0;
     static final int SOME_ERROR = 2;
@@ -17,11 +22,13 @@ public class GetBalanceWorker {
         this.dao = dao;
     }
 
-    public JSONObject getResult(JSONObject request){
+    @Override
+    public JsonNode getResult(JsonNode request){
+        ObjectMapper mapper= new ObjectMapper();
+        ObjectNode resObj = mapper.createObjectNode();
         try {
             User userFromRequest = getUserFromRequest(request);
             User dbUser = dao.getUserByLogin(userFromRequest);
-            JSONObject resObj = new JSONObject();
 
             if(dbUser == null){
                 resObj.put("result", USER_NOT_EXIST);
@@ -30,27 +37,16 @@ public class GetBalanceWorker {
             } else {
                 resObj.put("result", SUCCESS_RESULT);
                 double balance = dao.getBalance(dbUser);
-                JSONObject extras = new JSONObject();
+                ObjectNode extras = mapper.createObjectNode();
                 extras.put("balance", balance);
-                resObj.put("extras", extras);
+                resObj.set("extras", extras);
             }
-
-            return resObj;
         } catch (Exception e) {
-            JSONObject failObj = new JSONObject();
-            failObj.put("result", SOME_ERROR);
-            return failObj;
+            resObj.put("result", SOME_ERROR);
         }
+        return resObj;
     }
 
-    private User getUserFromRequest(JSONObject request) {
-        String login = request.optString("login", "");
-        String password = request.optString("password", "");
 
-        if(login.isEmpty() || password.isEmpty())
-            throw new IllegalArgumentException();
-
-        return new User(0, login, password);
-    }
 
 }

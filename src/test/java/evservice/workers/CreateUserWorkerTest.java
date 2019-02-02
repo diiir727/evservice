@@ -1,9 +1,12 @@
 package evservice.workers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import evservice.core.DAO;
 import evservice.core.User;
 import junit.framework.TestCase;
-import org.json.JSONObject;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.SQLException;
 
@@ -13,7 +16,7 @@ import static org.mockito.Mockito.when;
 public class CreateUserWorkerTest extends TestCase {
 
     private DAO dao = mock(DAO.class);
-    private User user = new User(0, "test", "test");
+    private User user = new User(0, "test", DigestUtils.md5Hex("test"));
 
 
     public void testSuccessResponse() throws SQLException {
@@ -33,10 +36,11 @@ public class CreateUserWorkerTest extends TestCase {
 
     private void checkWorkerResult(int actualRes){
         CreateUserWorker worker = new CreateUserWorker(dao);
-        JSONObject request = new JSONObject();
-        request.put("login", "test");
-        request.put("password", "test");
-        JSONObject res = worker.getResult(request);
-        assertEquals(res.getInt("result"), actualRes);
+        ObjectMapper mapper= new ObjectMapper();
+        ObjectNode objectNode = mapper.createObjectNode();
+        objectNode.put("login", "test");
+        objectNode.put("password", "test");
+        JsonNode res = worker.getResult(objectNode);
+        assertEquals(res.get("result").asInt(), actualRes);
     }
 }

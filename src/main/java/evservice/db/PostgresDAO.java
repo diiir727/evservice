@@ -9,42 +9,55 @@ public class PostgresDAO implements DAO {
 
     private Connection connection;
 
-    public PostgresDAO() throws Exception {
+    public PostgresDAO(String jdbcUrl, String login, String password) throws Exception {
         Class.forName("org.postgresql.Driver");
-        String host = "jdbc:postgresql://localhost:5432/den";
-        String login = "den";
-        String password = "123";
-        connection = DriverManager.getConnection(host, login, password);
+        connection = DriverManager.getConnection(jdbcUrl, login, password);
         connection.setAutoCommit(true);
     }
 
     public boolean registerUser(User user) throws SQLException{
-         PreparedStatement preparedStatement = connection.prepareStatement(
-                 "INSERT INTO public.users( login, pass) VALUES (?, ?) ON CONFLICT DO NOTHING;"
-         );
-         preparedStatement.setString(1, user.getLogin());
-         preparedStatement.setString(2, user.getPassword());
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO public.users( login, pass) VALUES (?, ?) ON CONFLICT DO NOTHING;"
+        );
+        preparedStatement.setString(1, user.getLogin());
+        preparedStatement.setString(2, user.getPassword());
 
-         int res = preparedStatement.executeUpdate();
-         preparedStatement.close();
-         return res == 1;
+        int res = preparedStatement.executeUpdate();
+        preparedStatement.close();
+        return res == 1;
     }
 
     @Override
     public double getBalance(User user) throws SQLException {
+        double balance = 0;
         PreparedStatement preparedStatement = connection.prepareStatement(
                 "SELECT sum(\"sum\") as balance FROM public.transactions WHERE user_id = ?"
         );
         preparedStatement.setInt(1, user.getId());
         ResultSet results = preparedStatement.executeQuery();
-        double balance = results.getDouble("balance");
+        if(results.next())
+            balance = results.getDouble("balance");
         preparedStatement.close();
-
         return balance;
     }
 
     @Override
     public User getUserByLogin(User user) throws SQLException {
-        return null;
+
+        User result = null;
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "SELECT * FROM public.users WHERE login = ?"
+        );
+        preparedStatement.setString(1, user.getLogin());
+        ResultSet results = preparedStatement.executeQuery();
+        while (results.next()) {
+            int id = results.getInt("id");
+            String pass = results.getString("pass");
+            String login = results.getString("login");
+            result = new User(id, login, pass);
+        }
+        preparedStatement.close();
+
+        return result;
     }
 }
