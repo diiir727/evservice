@@ -5,6 +5,8 @@ import evservice.core.DAO;
 import evservice.workers.Factory;
 import evservice.workers.Worker;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
 
@@ -14,7 +16,7 @@ import static ratpack.jackson.Jackson.jsonNode;
 public class PostHandler implements Handler {
 
     private final Factory factory;
-
+    private Logger logger = LoggerFactory.getLogger(getClass());
     public PostHandler(DAO dao) {
         this.factory = new Factory(dao);
     }
@@ -25,7 +27,8 @@ public class PostHandler implements Handler {
             context.parse(jsonNode())
                     .onError(v -> sendInternalError(context))
                     .then(obj -> sendAnswer(context, obj));
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            logger.warn("Handle error: ", e);
             sendInternalError(context);
         }
     }

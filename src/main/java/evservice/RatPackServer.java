@@ -2,11 +2,14 @@ package evservice;
 
 import evservice.core.DAO;
 import evservice.db.PostgresDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ratpack.server.RatpackServer;
 
 public class RatPackServer {
 
-    public static void main(String[] args) throws Exception {
+    private static final Logger logger = LoggerFactory.getLogger(RatPackServer.class);
+    public static void main(String[] args) {
         if (args.length != 3) {
             printHelp();
         } else {
@@ -25,7 +28,7 @@ public class RatPackServer {
                     .handlers(chain -> chain
                             .post(new PostHandler(dao))));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("server error:", e);
         }
     }
 
