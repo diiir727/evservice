@@ -1,5 +1,8 @@
 package evservice.core;
 
+/**
+ * Сигнализирует о проблемах в работе DAO
+ */
 public class DAOException extends Exception {
 
     public DAOException() {
