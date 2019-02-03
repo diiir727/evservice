@@ -18,6 +18,6 @@ public class Factory {
         } else if ("get-balance".equals(type)) {
             return new GetBalanceWorker(dao);
         }
-        return null;
+        throw new IllegalArgumentException("worker for this type not exist! (" + type + ")");
     }
 }

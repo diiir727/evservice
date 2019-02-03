@@ -17,20 +17,16 @@ public class PostHandler implements Handler {
 
     private final Factory factory;
     private Logger logger = LoggerFactory.getLogger(getClass());
+
     public PostHandler(DAO dao) {
         this.factory = new Factory(dao);
     }
 
     @Override
     public void handle(Context context) throws Exception {
-        try {
-            context.parse(jsonNode())
-                    .onError(v -> sendInternalError(context))
-                    .then(obj -> sendAnswer(context, obj));
-        } catch (Exception e) {
-            logger.warn("Handle error: ", e);
-            sendInternalError(context);
-        }
+        context.parse(jsonNode())
+                .onError(v -> sendInternalError(context))
+                .then(obj -> sendAnswer(context, obj));
     }
 
     private void sendInternalError(Context context){
@@ -39,9 +35,14 @@ public class PostHandler implements Handler {
     }
 
     private void sendAnswer(Context context, JsonNode obj){
-        Worker worker = factory.createWorker(obj);
-        JsonNode res = worker.getResult(obj);
-        context.getResponse().contentTypeIfNotSet("application/json");
-        context.getResponse().send(res.toString());
+        try {
+            Worker worker = factory.createWorker(obj);
+            JsonNode res = worker.getResult(obj);
+            context.getResponse().contentTypeIfNotSet("application/json");
+            context.getResponse().send(res.toString());
+        } catch (Exception e) {
+            logger.warn("Handle error: ", e);
+            sendInternalError(context);
+        }
     }
 }
