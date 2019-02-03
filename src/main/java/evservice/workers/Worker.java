@@ -6,6 +6,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 public abstract class Worker {
 
+    static final String REQUEST_LOGIN = "login";
+    static final String REQUEST_PASSWORD = "password";
+
     /**
      * Обрабатывает входные параметры и выдает необходимый результат
      * @param request входные параметры в формате JSON
@@ -15,8 +18,8 @@ public abstract class Worker {
 
     User getUserFromRequest(JsonNode request) {
 
-        String login = request.get("login").asText("");
-        String password = request.get("password").asText("");
+        String login = request.get(REQUEST_LOGIN).asText("");
+        String password = request.get(REQUEST_PASSWORD).asText("");
 
         if(login.isEmpty() || password.isEmpty()) {
             throw new IllegalArgumentException();

@@ -9,6 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 import java.sql.SQLException;
 
+import static evservice.workers.GetBalanceWorker.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,42 +19,42 @@ public class GetBalanceWorkerTest extends TestCase {
     private GetBalanceWorker worker = new GetBalanceWorker(dao);
     private User testUser = new User(0, "test", DigestUtils.md5Hex("test"));
 
-    public void testSuccessCase() throws SQLException {
+    public void testSuccessCase() throws Exception {
         ObjectNode obj = createRequestJson("test");
-        when(dao.getUserByLogin(testUser)).thenReturn(testUser);
+        when(dao.getUserByLogin(testUser.getLogin())).thenReturn(testUser);
         when(dao.getBalance(testUser)).thenReturn(12.5);
-        assertEquals(worker.getResult(obj).get("extras").get("balance").asDouble(), 12.5);
+        assertEquals(worker.getResult(obj).get(EXTRAS_FIELD).get(BALANCE_FIELD).asDouble(), 12.5);
     }
 
-    public void testUserNotExist() throws SQLException {
+    public void testUserNotExist() throws Exception {
         ObjectNode obj = createRequestJson("test");
-        when(dao.getUserByLogin(testUser)).thenReturn(null);
-        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.USER_NOT_EXIST);
+        when(dao.getUserByLogin(testUser.getLogin())).thenReturn(null);
+        assertEquals(worker.getResult(obj).get(RESULT_FIELD).asInt(), GetBalanceWorker.USER_NOT_EXIST_ANSWER);
     }
 
-    public void testNotValidArgs() throws SQLException {
+    public void testNotValidArgs() {
         GetBalanceWorker worker = new GetBalanceWorker(dao);
         ObjectNode obj = createRequestJson("");
-        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.SOME_ERROR);
+        assertEquals(worker.getResult(obj).get(RESULT_FIELD).asInt(), GetBalanceWorker.ERROR_ANSWER);
     }
 
-    public void testSomeException() throws SQLException {
+    public void testSomeException() throws Exception {
         ObjectNode obj = createRequestJson("test");
-        when(dao.getUserByLogin(testUser)).thenThrow(SQLException.class);
-        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.SOME_ERROR);
+        when(dao.getUserByLogin(testUser.getLogin())).thenThrow(SQLException.class);
+        assertEquals(worker.getResult(obj).get(RESULT_FIELD).asInt(), GetBalanceWorker.ERROR_ANSWER);
     }
 
-    public void testPasswordNotValid() throws SQLException {
+    public void testPasswordNotValid() throws Exception {
         ObjectNode obj = createRequestJson("test");
         User user = new User(0, "test", "other_pass");
-        when(dao.getUserByLogin(user)).thenReturn(user);
-        assertEquals(worker.getResult(obj).get("result").asInt(), GetBalanceWorker.PASSWORD_FAIL);
+        when(dao.getUserByLogin(user.getLogin())).thenReturn(user);
+        assertEquals(worker.getResult(obj).get(RESULT_FIELD).asInt(), GetBalanceWorker.PASSWORD_FAIL_ANSWER);
     }
 
     private ObjectNode createRequestJson(String login){
         ObjectNode obj = mapper.createObjectNode();
-        obj.put("login", login);
-        obj.put("password", "test");
+        obj.put(REQUEST_LOGIN, login);
+        obj.put(REQUEST_PASSWORD, "test");
         return obj;
     }
 

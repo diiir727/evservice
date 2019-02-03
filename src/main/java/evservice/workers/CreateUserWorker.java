@@ -11,9 +11,11 @@ import evservice.core.User;
  */
 public class CreateUserWorker extends Worker{
 
-    static final int USER_REGISTER = 0;
-    static final int USER_EXIST = 1;
-    static final int SOME_ERROR = 2;
+    static final int USER_REGISTER_ANSWER = 0;
+    static final int USER_EXIST_ANSWER = 1;
+    static final int SOME_ERROR_ANSWER = 2;
+
+    static final String RESULT_FIELD = "result";
     private DAO dao;
 
     public CreateUserWorker(DAO dao) {
@@ -26,10 +28,10 @@ public class CreateUserWorker extends Worker{
         ObjectNode jsonResult = mapper.createObjectNode();
         try {
             User user = getUserFromRequest(request);
-            int type = dao.registerUser(user) ? USER_REGISTER : USER_EXIST;
-            jsonResult.put("result", type);
+            int type = dao.registerUser(user) ? USER_REGISTER_ANSWER : USER_EXIST_ANSWER;
+            jsonResult.put(RESULT_FIELD, type);
         } catch (Exception e) {
-            jsonResult.put("result", SOME_ERROR);
+            jsonResult.put(RESULT_FIELD, SOME_ERROR_ANSWER);
         }
         return jsonResult;
     }
