@@ -3,12 +3,12 @@ package evservice.core;
 public class UserTransaction {
 
     private int id;
-    private int user_id;
-    private int sum;
+    private int userId;
+    private double sum;
 
-    public UserTransaction(int id, int user_id, int sum) {
+    public UserTransaction(int id, int userId, int sum) {
         this.id = id;
-        this.user_id = user_id;
+        this.userId = userId;
         this.sum = sum;
     }
 
@@ -16,11 +16,11 @@ public class UserTransaction {
         return id;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserId() {
+        return userId;
     }
 
-    public int getSum() {
+    public double getSum() {
         return sum;
     }
 }

@@ -2,6 +2,7 @@ package evservice.db;
 
 import evservice.core.DAO;
 import evservice.core.User;
+import evservice.core.UserTransaction;
 
 import java.sql.*;
 
@@ -39,6 +40,18 @@ public class PostgresDAO implements DAO {
             balance = results.getDouble("balance");
         preparedStatement.close();
         return balance;
+    }
+
+    @Override
+    public void createTransaction(UserTransaction transaction) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO public.transactions(user_id, sum) VALUES (?, ?)"
+        );
+        preparedStatement.setInt(1, transaction.getUserId());
+        preparedStatement.setDouble(2, transaction.getSum());
+
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
     }
 
     @Override
