@@ -50,6 +50,7 @@ public class GetBalanceWorker extends Worker{
                 resObj.set(EXTRAS_FIELD, extras);
             }
         } catch (Exception e) {
+            logger.warn("get-balance worker error: ", e);
             resObj.put(RESULT_FIELD, ERROR_ANSWER);
         }
         return resObj;
