@@ -28,7 +28,7 @@ public class GetBalanceWorker extends Worker{
         ObjectNode resObj = mapper.createObjectNode();
         try {
             User userFromRequest = getUserFromRequest(request);
-            User dbUser = dao.getUserByLogin(userFromRequest);
+            User dbUser = dao.getUserByLogin(userFromRequest.getLogin());
 
             if(dbUser == null){
                 resObj.put("result", USER_NOT_EXIST);
