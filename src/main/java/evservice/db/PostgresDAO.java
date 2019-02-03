@@ -91,4 +91,9 @@ public class PostgresDAO implements DAO {
             throw new DAOException(e);
         }
     }
+
+    @Override
+    public void close() throws Exception {
+        connection.close();
+    }
 }

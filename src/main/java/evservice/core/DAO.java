@@ -3,7 +3,7 @@ package evservice.core;
 /**
  * Интерфейс для работы с бд
  */
-public interface DAO {
+public interface DAO extends AutoCloseable {
 
     /**
      * Регистрация пользователя

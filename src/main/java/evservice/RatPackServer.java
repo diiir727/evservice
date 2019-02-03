@@ -18,12 +18,11 @@ public class RatPackServer {
     }
 
     private static void run(String[] args){
-        try {
-            String jdbcUrl = args[0];
-            String login = args[1];
-            String password = args[2];
+        String jdbcUrl = args[0];
+        String login = args[1];
+        String password = args[2];
 
-            DAO dao = new PostgresDAO(jdbcUrl, login, password);
+        try(DAO dao = new PostgresDAO(jdbcUrl, login, password)) {
             RatpackServer.start(server -> server
                     .handlers(chain -> chain
                             .post(new PostHandler(dao))));
