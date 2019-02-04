@@ -5,7 +5,7 @@
 ### Запуск
  Создайте необходимые таблицы в БД, для этого в корне проекта лежит db_init.sql   
  mvn package   
- java -jar target/ev-service-1.0.jar \<jdbcUrl> \<login> \<pass>
+ java -jar target/ev-service-1.0.jar \<jdbcUrl> \<login> \<pass>   
  запросы отправлять на localhost:5050
 
 ### Параметры
